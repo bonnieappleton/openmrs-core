@@ -18,10 +18,7 @@ import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -34,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.log4j.Appender;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -50,6 +48,7 @@ import org.openmrs.OpenmrsCharacterEscapes;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.util.LocaleUtility;
+import org.openmrs.util.MemoryAppender;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.web.WebConstants;
 import org.openmrs.web.filter.initialization.InitializationFilter;
@@ -165,6 +164,20 @@ public abstract class StartupFilter implements Filter {
 			// that it hasn't been set up yet.
 			// The jsp and servlet filter are also on this chain, so writing to
 			// the response directly here is the only option
+		}
+	}
+
+	protected static List<String> getLogLinesFromAppender(Appender appender) {
+		if (appender instanceof MemoryAppender) {
+			MemoryAppender memoryAppender = (MemoryAppender) appender;
+			List<String> logLines = memoryAppender.getLogLines();
+			// truncate the list to the last 5 so we don't overwhelm jquery
+			if (logLines.size() > 5) {
+				logLines = logLines.subList(logLines.size() - 5, logLines.size());
+			}
+			return logLines;
+		} else {
+			return new ArrayList<>();
 		}
 	}
 	

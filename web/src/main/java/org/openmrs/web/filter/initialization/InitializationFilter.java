@@ -307,20 +307,6 @@ public class InitializationFilter extends StartupFilter {
 		}
 	}
 
-	public static List<String> getLogLinesFromAppender(Appender appender) {
-		if (appender instanceof MemoryAppender) {
-			MemoryAppender memoryAppender = (MemoryAppender) appender;
-			List<String> logLines = memoryAppender.getLogLines();
-			// truncate the list to the last 5 so we don't overwhelm jquery
-			if (logLines.size() > 5) {
-				logLines = logLines.subList(logLines.size() - 5, logLines.size());
-			}
-			return logLines;
-		} else {
-			return new ArrayList<>();
-		}
-	}
-
 	private void loadInstallationScriptIfPresent() {
 		Properties script = getInstallationScript();
 		if (!script.isEmpty()) {
