@@ -240,19 +240,9 @@ public class InitializationFilter extends StartupFilter {
 					result.put("executedTasks", initJob.getExecutedTasks());
 					result.put("completedPercentage", initJob.getCompletedPercentage());
 				}
-				
+
 				Appender appender = Logger.getRootLogger().getAppender("MEMORY_APPENDER");
-				if (appender instanceof MemoryAppender) {
-					MemoryAppender memoryAppender = (MemoryAppender) appender;
-					List<String> logLines = memoryAppender.getLogLines();
-					// truncate the list to the last 5 so we don't overwhelm jquery
-					if (logLines.size() > 5) {
-						logLines = logLines.subList(logLines.size() - 5, logLines.size());
-					}
-					result.put("logLines", logLines);
-				} else {
-					result.put("logLines", new ArrayList<String>());
-				}
+				result.put("logLines", getLogLinesFromAppender(appender));
 			}
 			
 			PrintWriter writer = httpResponse.getWriter();
@@ -316,7 +306,21 @@ public class InitializationFilter extends StartupFilter {
 			renderTemplate(INSTALL_METHOD, referenceMap, httpResponse);
 		}
 	}
-	
+
+	public static List<String> getLogLinesFromAppender(Appender appender) {
+		if (appender instanceof MemoryAppender) {
+			MemoryAppender memoryAppender = (MemoryAppender) appender;
+			List<String> logLines = memoryAppender.getLogLines();
+			// truncate the list to the last 5 so we don't overwhelm jquery
+			if (logLines.size() > 5) {
+				logLines = logLines.subList(logLines.size() - 5, logLines.size());
+			}
+			return logLines;
+		} else {
+			return new ArrayList<>();
+		}
+	}
+
 	private void loadInstallationScriptIfPresent() {
 		Properties script = getInstallationScript();
 		if (!script.isEmpty()) {
